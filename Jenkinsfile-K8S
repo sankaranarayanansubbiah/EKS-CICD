@@ -1,5 +1,5 @@
 pipeline {
-   tools {
+    tools {
         maven 'Maven3'
     }
     agent any
@@ -13,33 +13,30 @@ pipeline {
                 checkout([$class: 'GitSCM', branches: [[name: '*/main']], doGenerateSubmoduleConfigurations: false, extensions: [], submoduleCfg: [], userRemoteConfigs: [[credentialsId: '', url: 'https://github.com/sankaranarayanansubbiah/EKS-CICD_PROJECT.git']]])     
             }
         }
-      stage ('Build') {
-          steps {
-            sh 'mvn clean install'           
+        stage ('Build') {
+            steps {
+                sh 'mvn clean install'           
             }
-      }
-    // Building Docker images
-    stage('Building image') {
-      steps{
-        script {
-          dockerImage = docker.build registry 
         }
-      }
-    }
-   
-    // Uploading Docker images into AWS ECR
-    stage('Pushing to ECR') {
-     steps{  
-         script {
-                sh 'aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 637423437036.dkr.ecr.ap-south-1.amazonaws.com'
-                sh 'docker push 637423437036.dkr.ecr.ap-south-1.amazonaws.com/project-1'
-         }
+        stage('Building image') {
+            steps {
+                script {
+                    dockerImage = docker.build registry 
+                }
+            }
         }
-      }
-
-    stage('K8S Deploy') {
-     steps{      
-           sh 'kubectl apply -f  eks-deploy-k8s.yaml'
-               }
-       }
+        stage('Pushing to ECR') {
+            steps {  
+                script {
+                    sh 'aws ecr get-login-password --region ap-south-1 | docker login --username AWS --password-stdin 637423437036.dkr.ecr.ap-south-1.amazonaws.com'
+                    sh 'docker push 637423437036.dkr.ecr.ap-south-1.amazonaws.com/project-1'
+                }
+            }
+        }
+        stage('K8S Deploy') {
+            steps {
+                sh 'kubectl apply -f eks-deploy-k8s.yaml'
+            }
+        }
     }
+}
