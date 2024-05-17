@@ -37,8 +37,9 @@ pipeline {
         }
       }
 
-       stage('K8S Deploy') {
-            sh 'kubectl apply -f  eks-deploy-k8s.yaml'
+    stage('K8S Deploy') {
+     steps{      
+           sh 'kubectl apply -f  eks-deploy-k8s.yaml'
                }
        }
     }
